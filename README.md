@@ -1,5 +1,5 @@
 🌾 AgriGuard - Rice Leaf Disease Detector
-AgriGuard is an AI-powered application (built with Python 3.11, Gradio, PyTorch, and OpenCV) for detecting rice leaf diseases from images. It identifies Brownspot as well as healthy leaves, providing easy-to-understand disease, treatment, and prevention recommendations.
+AgriGuard is an AI-powered application (built with Python 3.11, Gradio, PyTorch, and OpenCV) for detecting rice leaf diseases from images. It identifies Brownspot and Leafblast as well as healthy leaves, providing easy-to-understand disease, treatment, and prevention recommendations.
 
 Features
 Detects Brownspot and Leafblast from rice leaf images
