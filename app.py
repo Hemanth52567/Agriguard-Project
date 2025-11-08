@@ -18,6 +18,7 @@ def detect_by_color(image_array):
     try:
         hsv = cv2.cvtColor(image_array, cv2.COLOR_RGB2HSV)
         
+        # Red/Brown spots (for brownspot)
         lower_red1 = np.array([0, 100, 100])
         upper_red1 = np.array([15, 255, 255])
         lower_red2 = np.array([160, 100, 100])
@@ -27,23 +28,27 @@ def detect_by_color(image_array):
         red_mask = cv2.bitwise_or(red_mask1, red_mask2)
         red_percentage = np.sum(red_mask > 0) / red_mask.size * 100
         
+        # Brown spots (brownspot)
         lower_brown = np.array([8, 60, 80])
         upper_brown = np.array([25, 255, 200])
         brown_mask = cv2.inRange(hsv, lower_brown, upper_brown)
         brown_percentage = np.sum(brown_mask > 0) / brown_mask.size * 100
         
-        lower_yellow = np.array([15, 60, 80])
-        upper_yellow = np.array([40, 255, 255])
+        # Yellow/Orange margins (brownspot) - STRICT DEFINITION
+        lower_yellow = np.array([18, 80, 80])
+        upper_yellow = np.array([35, 255, 255])
         yellow_mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
         yellow_percentage = np.sum(yellow_mask > 0) / yellow_mask.size * 100
         
+        # Green (healthy)
         lower_green = np.array([35, 40, 60])
-        upper_green = np.array([85, 255, 255])
+        upper_green = np.array([90, 255, 255])
         green_mask = cv2.inRange(hsv, lower_green, upper_green)
         green_percentage = np.sum(green_mask > 0) / green_mask.size * 100
         
+        # Dark/Necrotic spots (LEAFBLAST - VERY DARK ONLY)
         lower_dark = np.array([0, 0, 0])
-        upper_dark = np.array([180, 180, 70])
+        upper_dark = np.array([180, 100, 60])
         dark_mask = cv2.inRange(hsv, lower_dark, upper_dark)
         dark_percentage = np.sum(dark_mask > 0) / dark_mask.size * 100
         
@@ -74,7 +79,8 @@ def predict_disease(image):
         
         colors = detect_by_color(img_array)
         
-        if (colors["red"] > 3 or colors["brown"] > 3) and colors["yellow"] > 2:
+        # BROWNSPOT detection (PRIORITIZED - check first)
+        if (colors["red"] > 2 or colors["brown"] > 2) and colors["yellow"] > 1.5:
             result = """🚨 **BROWNSPOT DETECTED**
 
 **Disease:** Brown leaf spots with yellowish margins (fungal infection)
@@ -93,7 +99,8 @@ def predict_disease(image):
 • Avoid overhead irrigation methods
 • Practice proper crop spacing"""
         
-        elif colors["dark"] > 8 and colors["green"] > 15:
+        # LEAFBLAST detection (only very dark spots)
+        elif colors["dark"] > 1 and colors["green"] > 15:
             result = """⚠️ **LEAFBLAST DETECTED**
 
 **Disease:** Angular necrotic lesions with gray or white centers (fungal disease)
@@ -112,7 +119,8 @@ def predict_disease(image):
 • Conduct regular field inspections
 • Avoid planting in wet, poorly drained areas"""
         
-        elif colors["green"] > 50 and colors["red"] < 2 and colors["brown"] < 2 and colors["dark"] < 5:
+        # HEALTHY detection
+        elif colors["green"] > 55 and colors["red"] < 1 and colors["brown"] < 1 and colors["dark"] < 1:
             result = """✅ **NO DISEASE DETECTED**
 
 Your rice plant is healthy!"""
@@ -191,4 +199,4 @@ with gr.Blocks(title="AgriGuard - Rice Disease Detector", theme=gr.themes.Soft()
     submit_btn.click(fn=predict_disease, inputs=image_input, outputs=output_label)
 
 if __name__ == "__main__":
-    demo.launch(debug=False, share=True)
+    demo.launch(debug=False, share=False)
