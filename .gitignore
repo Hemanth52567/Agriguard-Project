@@ -1,0 +1,13 @@
+env/
+.gradio/
+__pycache__/
+*.pyc
+*.pkl
+*.db
+*.sqlite
+.DS_Store
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
